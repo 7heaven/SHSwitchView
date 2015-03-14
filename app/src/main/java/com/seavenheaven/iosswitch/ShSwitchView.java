@@ -339,8 +339,8 @@ public class ShSwitchView extends View {
 
         intrinsicKnobWidth = knobBound.height();
         knobMaxExpandWidth = (float) width * 0.7F;
-        if(knobMaxExpandWidth > knobBound.width() * 1.2F){
-            knobMaxExpandWidth = knobBound.width() * 1.2F;
+        if(knobMaxExpandWidth > knobBound.width() * 1.25F){
+            knobMaxExpandWidth = knobBound.width() * 1.25F;
         }
     }
 
