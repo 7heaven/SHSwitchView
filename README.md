@@ -5,6 +5,8 @@
 
 ![art1](./arts/art1.gif)
 
+![art3](./arts/art3.gif)
+
 **通过setOnSwitchStateChangeListener方法增加状态改变回调**
 
 **using setOnSwitchStateChangeListener method to add a callback for switch state change
