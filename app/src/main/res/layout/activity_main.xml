@@ -10,6 +10,6 @@
         android:id="@+id/switch_view"
         android:layout_width="60dip"
         android:layout_height="40dip"
-        shSwitch:tintColor="#FF0099CC"/>
+        shSwitch:tintColor="#FFF5A3A5"/>
 
 </RelativeLayout>
