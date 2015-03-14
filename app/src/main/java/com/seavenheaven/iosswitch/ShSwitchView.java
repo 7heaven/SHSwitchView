@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -91,7 +92,7 @@ public class ShSwitchView extends View {
 
 
 
-            if(!isOn){
+            if(!knobState){
                 innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
                 innerContentAnimator.setDuration(300L);
                 innerContentAnimator.setInterpolator(new DecelerateInterpolator());
@@ -112,11 +113,11 @@ public class ShSwitchView extends View {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
             if(e2.getX() > centerX){
-                if(!isOn){
+                if(!knobState){
                     knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
                     knobMoveAnimator.setDuration(300L);
                     knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
-                    isOn = !isOn;
+                    knobState = !knobState;
 
                     knobMoveAnimator.start();
 
@@ -127,11 +128,11 @@ public class ShSwitchView extends View {
                     innerContentAnimator.start();
                 }
             }else{
-                if(isOn){
+                if(knobState){
                     knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 0.0F);
                     knobMoveAnimator.setDuration(300L);
                     knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
-                    isOn = !isOn;
+                    knobState = !knobState;
 
                     knobMoveAnimator.start();
 
@@ -155,8 +156,8 @@ public class ShSwitchView extends View {
 
     private float cornerRadius;
 
-    private int shadowSpace = 10;
-    private int outerStrokeWidth = 2;
+    private int shadowSpace;
+    private int outerStrokeWidth;
 
     private RectF knobBound;
     private float knobMaxExpandWidth;
@@ -164,7 +165,7 @@ public class ShSwitchView extends View {
     private float knobExpandRate;
     private float knobMoveRate;
 
-    private boolean isOn;
+    private boolean knobState;
 
     private RectF innerContentBound;
     private float innerContentRate;
@@ -174,7 +175,6 @@ public class ShSwitchView extends View {
     private int tintColor;
     private static final int backgroundColor = 0xFFCCCCCC;
     private int colorStep = backgroundColor;
-    private float colorStepRate;
     private static final int foregroundColor = 0xFFEFEFEF;
 
     private Paint paint;
@@ -211,7 +211,8 @@ public class ShSwitchView extends View {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 
-
+        outerStrokeWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, context.getResources().getDisplayMetrics());
+        shadowSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
     }
 
     void setInnerContentRate(float rate){
@@ -258,7 +259,7 @@ public class ShSwitchView extends View {
         float kw = knobBound.width();
         float w = (float) (width - kw - ((shadowSpace + outerStrokeWidth) * 2)) * rate;
 
-        this.colorStep = colorTransform(rate, backgroundColor, tintColor);
+        this.colorStep = RGBColorTransform(rate, backgroundColor, tintColor);
 
 
         knobBound.left = shadowSpace + outerStrokeWidth + w;
@@ -278,6 +279,16 @@ public class ShSwitchView extends View {
 
         width = MeasureSpec.getSize(widthMeasureSpec);
         height = MeasureSpec.getSize(heightMeasureSpec);
+
+        //make sure widget remain in a good appearance
+        if((float) height / (float) width < 0.33333F){
+            height = (int) ((float) width * 0.33333F);
+
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.getMode(widthMeasureSpec));
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.getMode(heightMeasureSpec));
+
+            super.setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
+        }
 
         centerX = width / 2;
         centerY = height / 2;
@@ -310,7 +321,7 @@ public class ShSwitchView extends View {
         switch(event.getAction()){
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if(!isOn){
+                if(!knobState){
                     innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
                     innerContentAnimator.setDuration(300L);
                     innerContentAnimator.setInterpolator(new DecelerateInterpolator());
@@ -346,7 +357,7 @@ public class ShSwitchView extends View {
 
         //knob
         paint.setShadowLayer(5, 0, 5, 0x44000000);
-        drawRoundRect(knobBound, cornerRadius, canvas, paint);
+        drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, canvas, paint);
         paint.setShadowLayer(0, 0, 0, 0);
 
         paint.setColor(backgroundColor);
@@ -384,7 +395,9 @@ public class ShSwitchView extends View {
         canvas.drawPath(roundRectPath, paint);
     }
 
-    private int colorTransform(float progress, int fromColor, int toColor) {
+    //seperate RGB channels and calculate new value for each channel
+    //ignore alpha channel
+    private int RGBColorTransform(float progress, int fromColor, int toColor) {
         int or = (fromColor >> 16) & 0xFF;
         int og = (fromColor >> 8) & 0xFF;
         int ob = fromColor & 0xFF;
