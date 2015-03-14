@@ -1,3 +1,3 @@
 IOS7 风格的Switch开关
 
-![art1](./arts/art.gif)
+![art1](./arts/art1.gif)
