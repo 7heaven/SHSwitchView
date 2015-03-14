@@ -66,6 +66,8 @@ public class ShSwitchView extends View {
         @Override
         public boolean onDown(MotionEvent event){
 
+            preIsOn = isOn;
+
             return true;
         }
 
@@ -92,6 +94,8 @@ public class ShSwitchView extends View {
 
 
 
+            isOn = knobState;
+
             if(!knobState){
                 innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
                 innerContentAnimator.setDuration(300L);
@@ -105,6 +109,10 @@ public class ShSwitchView extends View {
             knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
 
             knobExpandAnimator.start();
+
+            if(ShSwitchView.this.onSwitchStateChangeListener != null && isOn != preIsOn){
+                ShSwitchView.this.onSwitchStateChangeListener.onSwitchStateChange(isOn);
+            }
 
             return true;
         }
@@ -166,6 +174,8 @@ public class ShSwitchView extends View {
     private float knobMoveRate;
 
     private boolean knobState;
+    private boolean isOn;
+    private boolean preIsOn;
 
     private RectF innerContentBound;
     private float innerContentRate;
@@ -182,6 +192,12 @@ public class ShSwitchView extends View {
     private RectF ovalForPath;
     private Path roundRectPath;
 
+    public interface OnSwitchStateChangeListener{
+        public void onSwitchStateChange(boolean isOn);
+    }
+
+    private OnSwitchStateChangeListener onSwitchStateChangeListener;
+
     public ShSwitchView(Context context){
         this(context, null);
     }
@@ -197,6 +213,14 @@ public class ShSwitchView extends View {
 
         tintColor = ta.getColor(R.styleable.ShSwitchView_tintColor, 0xFF9CE949);
 
+        int defaultOuterStrokeWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1.5F, context.getResources().getDisplayMetrics());
+        int defaultShadowSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
+
+        outerStrokeWidth = ta.getDimensionPixelOffset(R.styleable.ShSwitchView_outerStrokeWidth, defaultOuterStrokeWidth);
+        shadowSpace = ta.getDimensionPixelOffset(R.styleable.ShSwitchView_shadowSpace, defaultShadowSpace);
+
+        ta.recycle();
+
         knobBound = new RectF();
         innerContentBound = new RectF();
         ovalForPath = new RectF();
@@ -210,9 +234,14 @@ public class ShSwitchView extends View {
         if(Build.VERSION.SDK_INT >= 11){
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
+    }
 
-        outerStrokeWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, context.getResources().getDisplayMetrics());
-        shadowSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
+    public void setOnSwitchStateChangeListener(OnSwitchStateChangeListener onSwitchStateChangeListener){
+        this.onSwitchStateChangeListener = onSwitchStateChangeListener;
+    }
+
+    public OnSwitchStateChangeListener getOnSwitchStateChangeListener(){
+        return this.onSwitchStateChangeListener;
     }
 
     void setInnerContentRate(float rate){
@@ -335,6 +364,12 @@ public class ShSwitchView extends View {
 
                 knobExpandAnimator.start();
 
+                isOn = knobState;
+
+                if(ShSwitchView.this.onSwitchStateChangeListener != null && isOn != preIsOn){
+                    ShSwitchView.this.onSwitchStateChangeListener.onSwitchStateChange(isOn);
+                }
+
                 break;
         }
 
@@ -364,7 +399,7 @@ public class ShSwitchView extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(1);
 
-        drawRoundRect(knobBound, cornerRadius, canvas, paint);
+        drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, canvas, paint);
 
     }
 
