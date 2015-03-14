@@ -195,7 +195,7 @@ public class ShSwitchView extends View {
 
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ShSwitchView);
 
-        tintColor = ta.getColor(R.styleable.ShSwitchView_tintColor, /*0xFF9CE949*/ 0xFF0099CC);
+        tintColor = ta.getColor(R.styleable.ShSwitchView_tintColor, 0xFF9CE949);
 
         knobBound = new RectF();
         innerContentBound = new RectF();
