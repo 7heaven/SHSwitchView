@@ -1,4 +1,4 @@
-package com.seavenheaven.iosswitch;
+package com.sevenheaven.iosswitch;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -178,7 +178,7 @@ public class ShSwitchView extends View {
     private boolean preIsOn;
 
     private RectF innerContentBound;
-    private float innerContentRate;
+    private float innerContentRate = 1.0F;
     private float intrinsicInnerWidth;
     private float intrinsicInnerHeight;
 
@@ -391,7 +391,7 @@ public class ShSwitchView extends View {
         drawRoundRect(innerContentBound, innerContentBound.height() / 2, canvas, paint);
 
         //knob
-        paint.setShadowLayer(5, 0, 5, 0x44000000);
+        paint.setShadowLayer(shadowSpace / 2, 0, shadowSpace / 2, 0x44000000);
         drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, canvas, paint);
         paint.setShadowLayer(0, 0, 0, 0);
 

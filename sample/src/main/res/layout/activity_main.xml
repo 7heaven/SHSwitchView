@@ -7,9 +7,8 @@
 
     <com.sevenheaven.iosswitch.ShSwitchView
         xmlns:shSwitch="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/switch_view"
         android:layout_width="60dip"
         android:layout_height="40dip"
-        shSwitch:tintColor="#FFF5A3A5"/>
+        shSwitch:tintColor="#ff62cc2f" />
 
 </RelativeLayout>

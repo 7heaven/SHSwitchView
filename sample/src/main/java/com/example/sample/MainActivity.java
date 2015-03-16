@@ -1,28 +1,20 @@
-package com.seavenheaven.iosswitch;
+package com.example.sample;
 
-import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.view.View;
+import android.view.ViewGroup;
 
 public class MainActivity extends ActionBarActivity {
-
-    ShSwitchView switchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        switchView = (ShSwitchView) findViewById(R.id.switch_view);
-        switchView.setOnSwitchStateChangeListener(new ShSwitchView.OnSwitchStateChangeListener() {
-            @Override
-            public void onSwitchStateChange(boolean isOn) {
-                Log.d("state change", "isOn:" + (isOn ? "true" : "false"));
-            }
-        });
+
     }
 
 
