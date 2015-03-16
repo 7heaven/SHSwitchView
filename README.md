@@ -19,7 +19,7 @@
 
 可在xml文件内通过tintColor标签改变颜色
 
-change tint color show as follow
+change tint color using attribute show as follow
 
 ![art2](./arts/art2.png)
 
