@@ -8,6 +8,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -21,6 +22,8 @@ import com.nineoldandroids.util.Property;
  * Created by 7heaven on 15/3/14.
  */
 public class ShSwitchView extends View {
+
+    private static final long commonDuration = 300L;
 
     private ObjectAnimator innerContentAnimator;
     private Property<ShSwitchView, Float> innerContentProperty = new Property<ShSwitchView, Float>(Float.class, "innerBound"){
@@ -74,18 +77,10 @@ public class ShSwitchView extends View {
         @Override
         public void onShowPress(MotionEvent event){
 
-
-
-            innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 0.0F);
-            innerContentAnimator.setDuration(300L);
-            innerContentAnimator.setInterpolator(new DecelerateInterpolator());
-
+            innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
             innerContentAnimator.start();
 
-            knobExpandAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobExpandProperty, knobExpandRate, 1.0F);
-            knobExpandAnimator.setDuration(300L);
-            knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
-
+            knobExpandAnimator.setFloatValues(knobExpandRate, 1.0F);
             knobExpandAnimator.start();
         }
 
@@ -96,18 +91,28 @@ public class ShSwitchView extends View {
 
             isOn = knobState;
 
-            if(!knobState){
-                innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
-                innerContentAnimator.setDuration(300L);
-                innerContentAnimator.setInterpolator(new DecelerateInterpolator());
+            if(preIsOn == isOn){
+                isOn = !isOn;
+                knobState = !knobState;
+            }
 
+            if(knobState){
+
+                knobMoveAnimator.setFloatValues(knobMoveRate, 1.0F);
+                knobMoveAnimator.start();
+
+                innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
+                innerContentAnimator.start();
+            }else{
+
+                knobMoveAnimator.setFloatValues(knobMoveRate, 0.0F);
+                knobMoveAnimator.start();
+
+                innerContentAnimator.setFloatValues(innerContentRate, 1.0F);
                 innerContentAnimator.start();
             }
 
-            knobExpandAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobExpandProperty, knobExpandRate, 0.0F);
-            knobExpandAnimator.setDuration(300L);
-            knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
-
+            knobExpandAnimator.setFloatValues(knobExpandRate, 0.0F);
             knobExpandAnimator.start();
 
             if(ShSwitchView.this.onSwitchStateChangeListener != null && isOn != preIsOn){
@@ -122,26 +127,19 @@ public class ShSwitchView extends View {
 
             if(e2.getX() > centerX){
                 if(!knobState){
-                    knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
-                    knobMoveAnimator.setDuration(300L);
-                    knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
                     knobState = !knobState;
 
+                    knobMoveAnimator.setFloatValues(knobMoveRate, 1.0F);
                     knobMoveAnimator.start();
 
-                    innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 0.0F);
-                    innerContentAnimator.setDuration(300L);
-                    innerContentAnimator.setInterpolator(new DecelerateInterpolator());
-
+                    innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
                     innerContentAnimator.start();
                 }
             }else{
                 if(knobState){
-                    knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 0.0F);
-                    knobMoveAnimator.setDuration(300L);
-                    knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
                     knobState = !knobState;
 
+                    knobMoveAnimator.setFloatValues(knobMoveRate, 0.0F);
                     knobMoveAnimator.start();
 
 
@@ -234,6 +232,18 @@ public class ShSwitchView extends View {
         if(Build.VERSION.SDK_INT >= 11){
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
+
+        innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
+        innerContentAnimator.setDuration(commonDuration);
+        innerContentAnimator.setInterpolator(new DecelerateInterpolator());
+
+        knobExpandAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobExpandProperty, knobExpandRate, 1.0F);
+        knobExpandAnimator.setDuration(commonDuration);
+        knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
+
+        knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
+        knobMoveAnimator.setDuration(300L);
+        knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
     }
 
     public void setOnSwitchStateChangeListener(OnSwitchStateChangeListener onSwitchStateChangeListener){
@@ -350,6 +360,7 @@ public class ShSwitchView extends View {
         switch(event.getAction()){
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                Log.d("action", "outside");
                 if(!knobState){
                     innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
                     innerContentAnimator.setDuration(300L);
