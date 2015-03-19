@@ -242,7 +242,7 @@ public class ShSwitchView extends View {
         knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
 
         knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
-        knobMoveAnimator.setDuration(300L);
+        knobMoveAnimator.setDuration(commonDuration);
         knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
     }
 
