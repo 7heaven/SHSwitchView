@@ -1,1 +1,1 @@
-include ':app', ':sample', ':iosswitch'
+include ':sample', ':iosswitch'
