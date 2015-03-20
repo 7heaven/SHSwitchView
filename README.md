@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/7heaven/maven/shswitch/images/download.svg) ](https://bintray.com/7heaven/maven/shswitch/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/7heaven/maven/iosswitch/images/download.svg) ](https://bintray.com/7heaven/maven/iosswitch/_latestVersion)
 
 ##IOS7 风格的Switch开关  
 ###IOS7 Style Switch Widget
