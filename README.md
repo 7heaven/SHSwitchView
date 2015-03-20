@@ -25,7 +25,7 @@
 add follow line to your dependencies in gradle script
 
 ```
-compile 'com.7heaven.ioswidget:app:0.1'
+compile 'com.7heaven.ioswidget:iosswitch:0.1'
 ```
 
 ##使用
