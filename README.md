@@ -17,15 +17,19 @@
 
 
 ##添加到你的项目中
+###add to your project
 *****
 
 在gradle脚本的dependencies中加入
+
+add follow line to your dependencies in gradle script
 
 ```
 compile 'com.7heaven.ioswidget:app:0.1'
 ```
 
 ##使用
+###usage
 *****
 
 **通过setOnSwitchStateChangeListener方法增加状态改变回调**
