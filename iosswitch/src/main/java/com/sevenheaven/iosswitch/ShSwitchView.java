@@ -354,6 +354,57 @@ public class ShSwitchView extends View {
         }
     }
 
+    public boolean isOn(){
+        return this.isOn;
+    }
+
+    public void setOn(boolean on){
+        setOn(on, false);
+    }
+
+    public void setOn(boolean on, boolean animated){
+
+        if(this.isOn == on) return;
+
+        this.isOn = on;
+        knobState = this.isOn;
+
+        if(!animated){
+            knobMoveAnimator.setDuration(1L);
+            innerContentAnimator.setDuration(1L);
+            knobExpandAnimator.setDuration(1L);
+        }
+
+        if(knobState){
+
+            knobMoveAnimator.setFloatValues(knobMoveRate, 1.0F);
+            knobMoveAnimator.start();
+
+            innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
+            innerContentAnimator.start();
+        }else{
+
+            knobMoveAnimator.setFloatValues(knobMoveRate, 0.0F);
+            knobMoveAnimator.start();
+
+            innerContentAnimator.setFloatValues(innerContentRate, 1.0F);
+            innerContentAnimator.start();
+        }
+
+        knobExpandAnimator.setFloatValues(knobExpandRate, 0.0F);
+        knobExpandAnimator.start();
+
+        if(!animated){
+            knobMoveAnimator.setDuration(commonDuration);
+            innerContentAnimator.setDuration(commonDuration);
+            knobExpandAnimator.setDuration(commonDuration);
+        }
+
+        if(ShSwitchView.this.onSwitchStateChangeListener != null && isOn != preIsOn){
+            ShSwitchView.this.onSwitchStateChangeListener.onSwitchStateChange(isOn);
+        }
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event){
 

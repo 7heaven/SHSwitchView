@@ -1,19 +1,22 @@
 package com.example.sample;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+
+import com.sevenheaven.iosswitch.ShSwitchView;
 
 public class MainActivity extends ActionBarActivity {
+
+    ShSwitchView switchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        switchView = (ShSwitchView) findViewById(R.id.switch_view);
+        switchView.setOn(true);
     }
 
 
