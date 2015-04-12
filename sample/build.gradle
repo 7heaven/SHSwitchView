@@ -29,5 +29,6 @@ dependencies {
     //    compile(name: 'shswitchview', ext: 'aar')
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.7heaven.ioswidget:iosswitch:0.3'
+    //    compile 'com.7heaven.ioswidget:iosswitch:0.3'
+    compile project(':iosswitch')
 }

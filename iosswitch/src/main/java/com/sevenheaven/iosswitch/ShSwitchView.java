@@ -69,6 +69,8 @@ public class ShSwitchView extends View {
         @Override
         public boolean onDown(MotionEvent event){
 
+            if(!isEnabled()) return false;
+
             preIsOn = isOn;
 
             return true;
@@ -181,6 +183,9 @@ public class ShSwitchView extends View {
     private float intrinsicInnerHeight;
 
     private int tintColor;
+
+    private int tempTintColor;
+
     private static final int backgroundColor = 0xFFCCCCCC;
     private int colorStep = backgroundColor;
     private static final int foregroundColor = 0xFFEFEFEF;
@@ -189,6 +194,8 @@ public class ShSwitchView extends View {
 
     private RectF ovalForPath;
     private Path roundRectPath;
+
+    private RectF tempForRoundRect;
 
     public interface OnSwitchStateChangeListener{
         public void onSwitchStateChange(boolean isOn);
@@ -210,6 +217,7 @@ public class ShSwitchView extends View {
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ShSwitchView);
 
         tintColor = ta.getColor(R.styleable.ShSwitchView_tintColor, 0xFF9CE949);
+        tempTintColor = tintColor;
 
         int defaultOuterStrokeWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1.5F, context.getResources().getDisplayMetrics());
         int defaultShadowSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
@@ -222,6 +230,8 @@ public class ShSwitchView extends View {
         knobBound = new RectF();
         innerContentBound = new RectF();
         ovalForPath = new RectF();
+
+        tempForRoundRect = new RectF();
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         roundRectPath = new Path();
@@ -405,13 +415,25 @@ public class ShSwitchView extends View {
         }
     }
 
+    public void setTintColor(int tintColor){
+        this.tintColor = tintColor;
+        tempTintColor = this.tintColor;
+    }
+
+    public int getTintColor(){
+        return this.tintColor;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event){
+
+        Log.d("enabled", isEnabled() ? "true" : "false");
+
+        if(!isEnabled()) return false;
 
         switch(event.getAction()){
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                Log.d("action", "outside");
                 if(!knobState){
                     innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
                     innerContentAnimator.setDuration(300L);
@@ -439,8 +461,21 @@ public class ShSwitchView extends View {
     }
 
     @Override
+    public void setEnabled(boolean enabled){
+        super.setEnabled(enabled);
+
+        if(enabled){
+            this.tintColor = tempTintColor;
+        }else{
+            this.tintColor = this.RGBColorTransform(0.5F, tempTintColor, 0xFFFFFFFF);
+        }
+    }
+
+    @Override
     public void onDraw(Canvas canvas){
         super.onDraw(canvas);
+
+        Log.d("enabled", isEnabled() ? "true" : "false");
 
         //background
         paint.setColor(colorStep);
@@ -453,7 +488,7 @@ public class ShSwitchView extends View {
         drawRoundRect(innerContentBound, innerContentBound.height() / 2, canvas, paint);
 
         //knob
-        paint.setShadowLayer(shadowSpace / 2, 0, shadowSpace / 2, 0x44000000);
+        paint.setShadowLayer(shadowSpace / 2, 0, shadowSpace / 2, isEnabled() ? 0x44000000 : 0x22000000);
         drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, canvas, paint);
         paint.setShadowLayer(0, 0, 0, 0);
 
@@ -470,26 +505,33 @@ public class ShSwitchView extends View {
     }
 
     private void drawRoundRect(float left, float top, float right, float bottom, float radius, Canvas canvas, Paint paint){
-        roundRectPath.reset();
+//        roundRectPath.reset();
+//
+//        float radiusSize = radius * 2;
 
-        float radiusSize = radius * 2;
+        tempForRoundRect.left = left;
+        tempForRoundRect.top = top;
+        tempForRoundRect.right = right;
+        tempForRoundRect.bottom = bottom;
 
-        roundRectPath.moveTo(left, top + radius);
+        canvas.drawRoundRect(tempForRoundRect, radius, radius, paint);
 
-        ovalForPath.set(left, top, left + radiusSize, top + radiusSize);
-        roundRectPath.arcTo(ovalForPath, 180, 90, false);
-        roundRectPath.lineTo(right - radius, top);
-        ovalForPath.set(right - radiusSize, top, right, top + radiusSize);
-        roundRectPath.arcTo(ovalForPath, 270, 90, false);
-        roundRectPath.lineTo(right, bottom - radius);
-        ovalForPath.set(right - radiusSize, bottom - radiusSize, right, bottom);
-        roundRectPath.arcTo(ovalForPath, 0, 90, false);
-        roundRectPath.lineTo(left + radius, bottom);
-        ovalForPath.set(left, bottom - radiusSize, left + radiusSize, bottom);
-        roundRectPath.arcTo(ovalForPath, 90, 90, false);
-        roundRectPath.close();
-
-        canvas.drawPath(roundRectPath, paint);
+//        roundRectPath.moveTo(left, top + radius);
+//
+//        ovalForPath.set(left, top, left + radiusSize, top + radiusSize);
+//        roundRectPath.arcTo(ovalForPath, 180, 90, false);
+//        roundRectPath.lineTo(right - radius, top);
+//        ovalForPath.set(right - radiusSize, top, right, top + radiusSize);
+//        roundRectPath.arcTo(ovalForPath, 270, 90, false);
+//        roundRectPath.lineTo(right, bottom - radius);
+//        ovalForPath.set(right - radiusSize, bottom - radiusSize, right, bottom);
+//        roundRectPath.arcTo(ovalForPath, 0, 90, false);
+//        roundRectPath.lineTo(left + radius, bottom);
+//        ovalForPath.set(left, bottom - radiusSize, left + radiusSize, bottom);
+//        roundRectPath.arcTo(ovalForPath, 90, 90, false);
+//        roundRectPath.close();
+//
+//        canvas.drawPath(roundRectPath, paint);
     }
 
     //seperate RGB channels and calculate new value for each channel
