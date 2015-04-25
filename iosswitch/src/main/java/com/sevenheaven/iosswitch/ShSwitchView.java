@@ -6,9 +6,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -73,17 +73,19 @@ public class ShSwitchView extends View {
 
             preIsOn = isOn;
 
+            innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
+            innerContentAnimator.start();
+
+            knobExpandAnimator.setFloatValues(knobExpandRate, 1.0F);
+            knobExpandAnimator.start();
+
             return true;
         }
 
         @Override
         public void onShowPress(MotionEvent event){
 
-            innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
-            innerContentAnimator.start();
 
-            knobExpandAnimator.setFloatValues(knobExpandRate, 1.0F);
-            knobExpandAnimator.start();
         }
 
         @Override
@@ -167,6 +169,8 @@ public class ShSwitchView extends View {
     private int shadowSpace;
     private int outerStrokeWidth;
 
+    private Drawable shadowDrawable;
+
     private RectF knobBound;
     private float knobMaxExpandWidth;
     private float intrinsicKnobWidth;
@@ -196,6 +200,9 @@ public class ShSwitchView extends View {
     private Path roundRectPath;
 
     private RectF tempForRoundRect;
+
+    private boolean dirtyAnimation = false;
+    private boolean isAttachedToWindow = false;
 
     public interface OnSwitchStateChangeListener{
         public void onSwitchStateChange(boolean isOn);
@@ -254,6 +261,8 @@ public class ShSwitchView extends View {
         knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
         knobMoveAnimator.setDuration(commonDuration);
         knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
+
+        shadowDrawable = context.getResources().getDrawable(R.drawable.shadow);
     }
 
     public void setOnSwitchStateChangeListener(OnSwitchStateChangeListener onSwitchStateChangeListener){
@@ -267,14 +276,6 @@ public class ShSwitchView extends View {
     void setInnerContentRate(float rate){
         this.innerContentRate = rate;
 
-        float w = (float) intrinsicInnerWidth / 2.0F * rate;
-        float h = (float) intrinsicInnerHeight / 2.0F * rate;
-
-        this.innerContentBound.left = centerX - w;
-        this.innerContentBound.top = centerY - h;
-        this.innerContentBound.right = centerX + w;
-        this.innerContentBound.bottom = centerY + h;
-
         invalidate();
     }
 
@@ -284,16 +285,6 @@ public class ShSwitchView extends View {
 
     void setKnobExpandRate(float rate){
         this.knobExpandRate = rate;
-
-        float w = intrinsicKnobWidth + (float) (knobMaxExpandWidth - intrinsicKnobWidth) * rate;
-
-        boolean left = knobBound.left + knobBound.width() / 2 > centerX;
-
-        if(left){
-            knobBound.left = knobBound.right - w;
-        }else{
-            knobBound.right = knobBound.left + w;
-        }
 
         invalidate();
     }
@@ -305,15 +296,6 @@ public class ShSwitchView extends View {
     void setKnobMoveRate(float rate){
         this.knobMoveRate = rate;
 
-        float kw = knobBound.width();
-        float w = (float) (width - kw - ((shadowSpace + outerStrokeWidth) * 2)) * rate;
-
-        this.colorStep = RGBColorTransform(rate, backgroundColor, tintColor);
-
-
-        knobBound.left = shadowSpace + outerStrokeWidth + w;
-        knobBound.right = knobBound.left + kw;
-
         invalidate();
     }
 
@@ -321,6 +303,45 @@ public class ShSwitchView extends View {
         return knobMoveRate;
     }
 
+    @Override
+    protected void onAttachedToWindow(){
+        super.onAttachedToWindow();
+        isAttachedToWindow = true;
+
+        if(dirtyAnimation){
+            knobState = this.isOn;
+            if(knobState){
+
+                knobMoveAnimator.setFloatValues(knobMoveRate, 1.0F);
+                knobMoveAnimator.start();
+
+                innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
+                innerContentAnimator.start();
+            }else{
+
+                knobMoveAnimator.setFloatValues(knobMoveRate, 0.0F);
+                knobMoveAnimator.start();
+
+                innerContentAnimator.setFloatValues(innerContentRate, 1.0F);
+                innerContentAnimator.start();
+            }
+
+            knobExpandAnimator.setFloatValues(knobExpandRate, 0.0F);
+            knobExpandAnimator.start();
+
+            if(ShSwitchView.this.onSwitchStateChangeListener != null && isOn != preIsOn){
+                ShSwitchView.this.onSwitchStateChangeListener.onSwitchStateChange(isOn);
+            }
+
+            dirtyAnimation = false;
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow(){
+        super.onDetachedFromWindow();
+        isAttachedToWindow = false;
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
@@ -376,38 +397,47 @@ public class ShSwitchView extends View {
 
         if(this.isOn == on) return;
 
+        if(!isAttachedToWindow && animated){
+            dirtyAnimation = true;
+            this.isOn = on;
+
+            return;
+        }
+
         this.isOn = on;
         knobState = this.isOn;
 
         if(!animated){
-            knobMoveAnimator.setDuration(1L);
-            innerContentAnimator.setDuration(1L);
-            knobExpandAnimator.setDuration(1L);
-        }
 
-        if(knobState){
+            if(on){
+                setKnobMoveRate(1.0F);
+                setInnerContentRate(0.0F);
+            }else{
+                setKnobMoveRate(0.0F);
+                setInnerContentRate(1.0F);
+            }
 
-            knobMoveAnimator.setFloatValues(knobMoveRate, 1.0F);
-            knobMoveAnimator.start();
+            setKnobExpandRate(0.0F);
 
-            innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
-            innerContentAnimator.start();
         }else{
+            if(knobState){
 
-            knobMoveAnimator.setFloatValues(knobMoveRate, 0.0F);
-            knobMoveAnimator.start();
+                knobMoveAnimator.setFloatValues(knobMoveRate, 1.0F);
+                knobMoveAnimator.start();
 
-            innerContentAnimator.setFloatValues(innerContentRate, 1.0F);
-            innerContentAnimator.start();
-        }
+                innerContentAnimator.setFloatValues(innerContentRate, 0.0F);
+                innerContentAnimator.start();
+            }else{
 
-        knobExpandAnimator.setFloatValues(knobExpandRate, 0.0F);
-        knobExpandAnimator.start();
+                knobMoveAnimator.setFloatValues(knobMoveRate, 0.0F);
+                knobMoveAnimator.start();
 
-        if(!animated){
-            knobMoveAnimator.setDuration(commonDuration);
-            innerContentAnimator.setDuration(commonDuration);
-            knobExpandAnimator.setDuration(commonDuration);
+                innerContentAnimator.setFloatValues(innerContentRate, 1.0F);
+                innerContentAnimator.start();
+            }
+
+            knobExpandAnimator.setFloatValues(knobExpandRate, 0.0F);
+            knobExpandAnimator.start();
         }
 
         if(ShSwitchView.this.onSwitchStateChangeListener != null && isOn != preIsOn){
@@ -426,8 +456,6 @@ public class ShSwitchView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
-
-        Log.d("enabled", isEnabled() ? "true" : "false");
 
         if(!isEnabled()) return false;
 
@@ -475,7 +503,38 @@ public class ShSwitchView extends View {
     public void onDraw(Canvas canvas){
         super.onDraw(canvas);
 
-        Log.d("enabled", isEnabled() ? "true" : "false");
+        //innerContentCalculation begin
+        float w = (float) intrinsicInnerWidth / 2.0F * innerContentRate;
+        float h = (float) intrinsicInnerHeight / 2.0F * innerContentRate;
+
+        this.innerContentBound.left = centerX - w;
+        this.innerContentBound.top = centerY - h;
+        this.innerContentBound.right = centerX + w;
+        this.innerContentBound.bottom = centerY + h;
+        //innerContentCalculation end
+
+        //knobExpandCalculation begin
+        w = intrinsicKnobWidth + (float) (knobMaxExpandWidth - intrinsicKnobWidth) * knobExpandRate;
+
+        boolean left = knobBound.left + knobBound.width() / 2 > centerX;
+
+        if(left){
+            knobBound.left = knobBound.right - w;
+        }else{
+            knobBound.right = knobBound.left + w;
+        }
+        //knobExpandCalculation end
+
+        //knobMoveCalculation begin
+        float kw = knobBound.width();
+        w = (float) (width - kw - ((shadowSpace + outerStrokeWidth) * 2)) * knobMoveRate;
+
+        this.colorStep = RGBColorTransform(knobMoveRate, backgroundColor, tintColor);
+
+
+        knobBound.left = shadowSpace + outerStrokeWidth + w;
+        knobBound.right = knobBound.left + kw;
+        //knobMoveCalculation end
 
         //background
         paint.setColor(colorStep);
@@ -485,29 +544,29 @@ public class ShSwitchView extends View {
 
         //innerContent
         paint.setColor(foregroundColor);
-        drawRoundRect(innerContentBound, innerContentBound.height() / 2, canvas, paint);
+        canvas.drawRoundRect(innerContentBound, innerContentBound.height() / 2, innerContentBound.height() / 2, paint);
 
         //knob
-        paint.setShadowLayer(shadowSpace / 2, 0, shadowSpace / 2, isEnabled() ? 0x44000000 : 0x22000000);
-        drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, canvas, paint);
+//        shadowDrawable.setBounds((int) (knobBound.left - shadowSpace), (int) (knobBound.top - shadowSpace), (int) (knobBound.right + shadowSpace), (int) (knobBound.bottom + shadowSpace));
+//        shadowDrawable.draw(canvas);
+        paint.setShadowLayer(2, 0, shadowSpace / 2, isEnabled() ? 0x20000000 : 0x10000000);
+
+//        paint.setColor(isEnabled() ? 0x20000000 : 0x10000000);
+//        drawRoundRect(knobBound.left, knobBound.top + shadowSpace / 2, knobBound.right, knobBound.bottom + shadowSpace / 2, cornerRadius - outerStrokeWidth, canvas, paint);
+//
+//        paint.setColor(foregroundColor);
+        canvas.drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, cornerRadius - outerStrokeWidth, paint);
         paint.setShadowLayer(0, 0, 0, 0);
 
         paint.setColor(backgroundColor);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(1);
 
-        drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, canvas, paint);
+        canvas.drawRoundRect(knobBound, cornerRadius - outerStrokeWidth, cornerRadius - outerStrokeWidth, paint);
 
-    }
-
-    private void drawRoundRect(RectF bound, float radius, Canvas canvas, Paint paint){
-        drawRoundRect(bound.left, bound.top, bound.right, bound.bottom, radius, canvas, paint);
     }
 
     private void drawRoundRect(float left, float top, float right, float bottom, float radius, Canvas canvas, Paint paint){
-//        roundRectPath.reset();
-//
-//        float radiusSize = radius * 2;
 
         tempForRoundRect.left = left;
         tempForRoundRect.top = top;
@@ -515,23 +574,6 @@ public class ShSwitchView extends View {
         tempForRoundRect.bottom = bottom;
 
         canvas.drawRoundRect(tempForRoundRect, radius, radius, paint);
-
-//        roundRectPath.moveTo(left, top + radius);
-//
-//        ovalForPath.set(left, top, left + radiusSize, top + radiusSize);
-//        roundRectPath.arcTo(ovalForPath, 180, 90, false);
-//        roundRectPath.lineTo(right - radius, top);
-//        ovalForPath.set(right - radiusSize, top, right, top + radiusSize);
-//        roundRectPath.arcTo(ovalForPath, 270, 90, false);
-//        roundRectPath.lineTo(right, bottom - radius);
-//        ovalForPath.set(right - radiusSize, bottom - radiusSize, right, bottom);
-//        roundRectPath.arcTo(ovalForPath, 0, 90, false);
-//        roundRectPath.lineTo(left + radius, bottom);
-//        ovalForPath.set(left, bottom - radiusSize, left + radiusSize, bottom);
-//        roundRectPath.arcTo(ovalForPath, 90, 90, false);
-//        roundRectPath.close();
-//
-//        canvas.drawPath(roundRectPath, paint);
     }
 
     //seperate RGB channels and calculate new value for each channel

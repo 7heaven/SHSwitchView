@@ -16,8 +16,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         switchView = (ShSwitchView) findViewById(R.id.switch_view);
-        switchView.setOn(true);
-        switchView.setEnabled(false);
+        switchView.setOn(true, true);
     }
 
 
