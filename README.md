@@ -16,6 +16,8 @@
 
 
 
+
+
 ##添加到你的项目中
 ###add to your project
 *****
@@ -28,21 +30,32 @@ add follow line to your dependencies in gradle script
 compile 'com.7heaven.ioswidget:iosswitch:0.5'
 ```
 
+
+
 ##使用
 ###usage
 *****
 
-**通过setOn(boolean on)方法设置switch状态,setOn(boolean on, boolean animated)的animated参数决定是否以动画方式切换switch状态**
+```
 
-**using setOn(boolean on) method to set switch state,pass animated to setOn(boolean on, boolean animated) to switch state animated or not**
+通过setOn(boolean on)方法设置switch状态,setOn(boolean on, boolean animated)的animated参数决定是否以动画方式切换switch状态
 
-**通过isOn()获取switch状态**
+using setOn(boolean on) method to set switch state,pass animated to setOn(boolean on, boolean animated) to switch state animated or not
 
-**using isOn() method to get switch state**
+```
 
-**通过setOnSwitchStateChangeListener方法增加状态改变回调**
+```
+通过isOn()获取switch状态
 
-**using setOnSwitchStateChangeListener method to add a callback for switch state change
+using isOn() method to get switch state
+```
+
+```
+通过setOnSwitchStateChangeListener方法增加状态改变回调
+
+using setOnSwitchStateChangeListener method to add a callback for switch state change
+
+```
 
 
 
