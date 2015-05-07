@@ -1,0 +1,13 @@
+{
+    "name": "7heaven/SHSwitchView",
+    "description": "an iOS-7 Style Switch for android",
+    "keywords": ["switch", "ios style", "widget"],
+    "license": "MIT",
+    "homepage": "https://github.com/7heaven/SHSwitchView",
+    "authors": [
+        {
+            "name": "7heaven",
+            "email": "caifangmao8@gmail.com"
+        }
+    ]
+}
