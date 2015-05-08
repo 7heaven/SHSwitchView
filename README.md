@@ -1,5 +1,9 @@
 [ ![Download](https://api.bintray.com/packages/7heaven/maven/iosswitch/images/download.svg) ](https://bintray.com/7heaven/maven/iosswitch/_latestVersion)
 [![License](http://img.shields.io/:license-mit-blue.svg)](LICENSE)
+[![Build Status](http://img.shields.io/travis/7heaven/SHSwitchView.svg)](https://travis-ci.org/7heaven/SHSwitchView)
+[![Code Climate](http://img.shields.io/codeclimate/github/7heaven/SHSwitchView.svg)](https://codeclimate.com/github/7heaven/SHSwitchView)
+[![Badges](http://img.shields.io/:badges-4/4-ff6799.svg)](https://github.com/badges/badgerbadgerbadger)
+
 
 ##IOS7 风格的Switch开关  
 ###IOS7 Style Switch Widget
