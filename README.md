@@ -1,5 +1,5 @@
 [ ![Download](https://api.bintray.com/packages/7heaven/maven/iosswitch/images/download.svg) ](https://bintray.com/7heaven/maven/iosswitch/_latestVersion)
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
+[![License](http://img.shields.io/:license-mit-blue.svg)](LICENSE)
 
 ##IOS7 风格的Switch开关  
 ###IOS7 Style Switch Widget
