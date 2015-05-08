@@ -1,0 +1,8 @@
+language: java
+branches:
+  only:
+    - master
+
+notifications:
+  email:
+    - caifangmao8@gmail.com
