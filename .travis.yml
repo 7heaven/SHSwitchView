@@ -1,8 +1,24 @@
 language: java
-branches:
-  only:
-    - master
+jdk:
+  - openjdk7
+
+android:
+  components:
+
+    - build-tools-21.1.2
+    - android-21
 
 notifications:
-  email:
-    - caifangmao8@gmail.com
+  email: true
+
+cache: false
+
+sudo: false
+
+install:
+
+  - chmod +x ./gradlew; ls -l gradlew; ./gradlew wrapper -v
+
+script:
+  - ./gradlew clean assembleDebug
+
