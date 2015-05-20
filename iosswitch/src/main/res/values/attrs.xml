@@ -3,6 +3,8 @@
 
     <declare-styleable name="ShSwitchView">
         <attr name="tintColor" format="reference|color" />
+        <attr name="backgroundColor" format="reference|color" />
+        <attr name="foregroundColor" format="reference|color" />
         <attr name="outerStrokeWidth" format="reference|dimension" />
         <attr name="shadowSpace" format="reference|dimension" />
     </declare-styleable>
