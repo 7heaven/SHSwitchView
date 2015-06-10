@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -167,6 +169,8 @@ public class ShSwitchView extends View {
     private int shadowSpace;
     private int outerStrokeWidth;
 
+    private Drawable shadowDrawable;
+
     private RectF knobBound;
     private float knobMaxExpandWidth;
     private float intrinsicKnobWidth;
@@ -186,11 +190,14 @@ public class ShSwitchView extends View {
 
     private int tempTintColor;
 
-    private int backgroundColor;
-    private int colorStep;
-    private int foregroundColor;
+    private static final int backgroundColor = 0xFFCCCCCC;
+    private int colorStep = backgroundColor;
+    private static final int foregroundColor = 0xFFEFEFEF;
 
     private Paint paint;
+
+    private RectF ovalForPath;
+    private Path roundRectPath;
 
     private RectF tempForRoundRect;
 
@@ -218,9 +225,7 @@ public class ShSwitchView extends View {
 
         tintColor = ta.getColor(R.styleable.ShSwitchView_tintColor, 0xFF9CE949);
         tempTintColor = tintColor;
-        backgroundColor = ta.getColor(R.styleable.ShSwitchView_backgroundColor, 0xFFCCCCCC);
-        colorStep = backgroundColor;
-        foregroundColor = ta.getColor(R.styleable.ShSwitchView_foregroundColor, 0xFFEFEFEF);
+
         int defaultOuterStrokeWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1.5F, context.getResources().getDisplayMetrics());
         int defaultShadowSpace = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, context.getResources().getDisplayMetrics());
 
@@ -231,10 +236,12 @@ public class ShSwitchView extends View {
 
         knobBound = new RectF();
         innerContentBound = new RectF();
+        ovalForPath = new RectF();
 
         tempForRoundRect = new RectF();
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        roundRectPath = new Path();
 
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
@@ -254,6 +261,8 @@ public class ShSwitchView extends View {
         knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
         knobMoveAnimator.setDuration(commonDuration);
         knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
+
+        shadowDrawable = context.getResources().getDrawable(R.drawable.shadow);
     }
 
     public void setOnSwitchStateChangeListener(OnSwitchStateChangeListener onSwitchStateChangeListener){
