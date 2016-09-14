@@ -1,5 +1,6 @@
 package com.sevenheaven.iosswitch;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -15,9 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.util.Property;
-
 /**
  * Created by 7heaven on 15/3/14.
  */
@@ -25,44 +23,9 @@ public class ShSwitchView extends View {
 
     private static final long commonDuration = 300L;
 
-    private ObjectAnimator innerContentAnimator;
-    private Property<ShSwitchView, Float> innerContentProperty = new Property<ShSwitchView, Float>(Float.class, "innerBound"){
-        @Override
-        public void set(ShSwitchView sv, Float innerContentRate){
-            sv.setInnerContentRate(innerContentRate);
-        }
-
-        @Override
-        public Float get(ShSwitchView sv){
-            return sv.getInnerContentRate();
-        }
-    };
-
-    private ObjectAnimator knobExpandAnimator;
-    private Property<ShSwitchView, Float> knobExpandProperty = new Property<ShSwitchView, Float>(Float.class, "knobExpand"){
-        @Override
-        public void set(ShSwitchView sv, Float knobExpandRate){
-            sv.setKnobExpandRate(knobExpandRate);
-        }
-
-        @Override
-        public Float get(ShSwitchView sv){
-            return sv.getKnobExpandRate();
-        }
-    };
-
-    private ObjectAnimator knobMoveAnimator;
-    private Property<ShSwitchView, Float> knobMoveProperty = new Property<ShSwitchView, Float>(Float.class, "knobMove"){
-        @Override
-        public void set(ShSwitchView sv, Float knobMoveRate){
-            sv.setKnobMoveRate(knobMoveRate);
-        }
-
-        @Override
-        public Float get(ShSwitchView sv){
-            return sv.getKnobMoveRate();
-        }
-    };
+    private ValueAnimator innerContentAnimator;
+    private ValueAnimator knobExpandAnimator;
+    private ValueAnimator knobMoveAnimator;
 
     private GestureDetector gestureDetector;
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
@@ -192,7 +155,7 @@ public class ShSwitchView extends View {
 
     private static final int backgroundColor = 0xFFCCCCCC;
     private int colorStep = backgroundColor;
-    private static final int foregroundColor = 0xFFEFEFEF;
+    private static final int foregroundColor = 0xFFF5F5F5;
 
     private Paint paint;
 
@@ -205,7 +168,7 @@ public class ShSwitchView extends View {
     private boolean isAttachedToWindow = false;
 
     public interface OnSwitchStateChangeListener{
-        public void onSwitchStateChange(boolean isOn);
+        void onSwitchStateChange(boolean isOn);
     }
 
     private OnSwitchStateChangeListener onSwitchStateChangeListener;
@@ -250,19 +213,43 @@ public class ShSwitchView extends View {
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 
-        innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
-        innerContentAnimator.setDuration(commonDuration);
-        innerContentAnimator.setInterpolator(new DecelerateInterpolator());
-
-        knobExpandAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobExpandProperty, knobExpandRate, 1.0F);
-        knobExpandAnimator.setDuration(commonDuration);
-        knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
-
-        knobMoveAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobMoveProperty, knobMoveRate, 1.0F);
-        knobMoveAnimator.setDuration(commonDuration);
-        knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
+        initAnimators();
 
         shadowDrawable = context.getResources().getDrawable(R.drawable.shadow);
+    }
+
+    private void initAnimators(){
+        innerContentAnimator = ValueAnimator.ofFloat(innerContentRate, 1.0F);
+        knobExpandAnimator = ValueAnimator.ofFloat(knobExpandRate, 1.0F);
+        knobMoveAnimator = ValueAnimator.ofFloat(knobMoveRate, 1.0F);
+
+        innerContentAnimator.setDuration(commonDuration);
+        knobExpandAnimator.setDuration(commonDuration);
+        knobMoveAnimator.setDuration(commonDuration);
+
+        innerContentAnimator.setInterpolator(new DecelerateInterpolator());
+        knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
+        knobMoveAnimator.setInterpolator(new DecelerateInterpolator());
+
+        innerContentAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                setInnerContentRate((float) animation.getAnimatedValue());
+            }
+        });
+        knobExpandAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                setKnobExpandRate((float) animation.getAnimatedValue());
+            }
+        });
+        knobMoveAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                setKnobMoveRate((float) animation.getAnimatedValue());
+            }
+        });
+
     }
 
     public void setOnSwitchStateChangeListener(OnSwitchStateChangeListener onSwitchStateChangeListener){
@@ -463,16 +450,12 @@ public class ShSwitchView extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if(!knobState){
-                    innerContentAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, innerContentProperty, innerContentRate, 1.0F);
-                    innerContentAnimator.setDuration(300L);
-                    innerContentAnimator.setInterpolator(new DecelerateInterpolator());
+                    innerContentAnimator.setFloatValues(innerContentRate, 1.0F);
 
                     innerContentAnimator.start();
                 }
 
-                knobExpandAnimator = ObjectAnimator.ofFloat(ShSwitchView.this, knobExpandProperty, knobExpandRate, 0.0F);
-                knobExpandAnimator.setDuration(300L);
-                knobExpandAnimator.setInterpolator(new DecelerateInterpolator());
+                knobExpandAnimator.setFloatValues(knobExpandRate, 0.0F);
 
                 knobExpandAnimator.start();
 

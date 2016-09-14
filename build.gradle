@@ -5,9 +5,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.1'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
-        classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -17,5 +17,27 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        mavenCentral()
     }
+}
+
+ext{
+    compileSdkVersion = 24
+    buildToolsVersion = "24"
+
+    minSdkVersion = 11
+    targetSdkVersion = 24
+    versionCode = 1006
+    versionName = "0.6"
+
+    pomPackaging = "aar"
+    pomName = "iosswitch"
+    pomLicenseName = "The Apache Software License, Version 2.0"
+    pomLicenseShort = "Apache-2.0"
+    pomLicenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+
+    pomSiteUrl = 'https://github.com/7heaven/SHSwitchView'
+    pomGitUrl = 'https://github.com/7heaven/SHSwitchView.git'
+
+    pomGroup = "com.7heaven.ioswidget"
 }
