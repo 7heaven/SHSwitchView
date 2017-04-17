@@ -3,8 +3,8 @@
 [![License](http://img.shields.io/:license-mit-blue.svg)](LICENSE)
 
 
-##IOS7 风格的Switch开关  
-###IOS7 Style Switch Widget
+## IOS7 风格的Switch开关  
+### IOS7 Style Switch Widget
 *****
 
 
@@ -21,8 +21,8 @@
 
 
 
-##添加到你的项目中
-###add to your project
+## 添加到你的项目中
+### add to your project
 *****
 
 在gradle脚本的dependencies中加入
@@ -35,8 +35,8 @@ compile 'com.7heaven.ioswidget:iosswitch:0.6'
 
 
 
-##使用
-###usage
+## 使用
+### usage
 *****
 
 ```
